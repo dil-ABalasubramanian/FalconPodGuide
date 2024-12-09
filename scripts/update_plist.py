@@ -3,7 +3,7 @@ import os
 import sys
 
 # Path to Info.plist file
-info_plist_path = os.getenv("INFO_PLIST_PATH", "../../../Example/FalconPodGuide/Info.plist")
+info_plist_path = os.getenv("INFO_PLIST_PATH", "../Example/FalconPodGuide/Info.plist")
 
 # Increment Version and Build
 def increment_version_and_build(plist_path):
