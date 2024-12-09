@@ -14,7 +14,7 @@ jobs:
         env:
           GH_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
         run: |
-          gh auth login --with-token <<< "${GH_TOKEN}"
+          echo "Using GH_TOKEN for GitHub CLI"
       - name: 'Increment version, commit, and create PR'
         run: |
           chmod +x scripts/update_plist_create_pr.sh
