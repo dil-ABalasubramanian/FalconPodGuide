@@ -1,50 +1,29 @@
-name: Pre-Build Workflow
-
-on:
+name: Update Info.plist Version
+'on':
   push:
     branches:
       - main
-  workflow_dispatch:
-
+  workflow_dispatch: null
 jobs:
-  version_increment:
+  increment_version:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-
-      - name: Increment version and build
-        run: |
-          INFO_PLIST="../../Example/FalconPodGuide/Info.plist"
-          CURRENT_VERSION=$(/usr/libexec/PlistBuddy -c "Print CFBundleShortVersionString" "$INFO_PLIST")
-          CURRENT_BUILD=$(/usr/libexec/PlistBuddy -c "Print CFBundleVersion" "$INFO_PLIST")
-          if [ -z "$CURRENT_VERSION" ]; then
-              CURRENT_VERSION="0.0.0"
-          fi
-          if [ -z "$CURRENT_BUILD" ]; then
-              CURRENT_BUILD=0
-          fi
-          IFS='.' read -r -a VERSION_PARTS <<< "$CURRENT_VERSION"
-          PATCH=$((VERSION_PARTS[2] + 1))
-          NEW_VERSION="${VERSION_PARTS[0]}.${VERSION_PARTS[1]}.$PATCH"
-          NEW_BUILD=$((CURRENT_BUILD + 1))
-          /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $NEW_VERSION" "$INFO_PLIST"
-          /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $NEW_BUILD" "$INFO_PLIST"
-          git add "$INFO_PLIST"
-          git commit -m "Incremented version to $NEW_VERSION and build to $NEW_BUILD"
-          git push
-
-      - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v5
+      - name: Set up Python
+        uses: actions/setup-python@v4
         with:
-          branch: version-bump
-          base: main
-          title: Version Increment
-          body: Auto-incremented version and build.
-
-  trigger_xcode_build:
-    needs: version_increment
-    runs-on: ubuntu-latest
-    steps:
-      - name: Notify Xcode Cloud (if needed)
-        run: echo "This can be a manual step or an automatic trigger when PR is merged."
+          python-version: 3.x
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+      - name: Update Info.plist
+        run: |
+          python scripts/update_plist.py
+        env:
+          INFO_PLIST_PATH: path/to/Info.plist
+      - name: Commit and push changes
+        run: |
+          git add ../../../Example/FalconPodGuide/Info.plist
+          git commit -m "Auto-incremented version and build"
+          git push
