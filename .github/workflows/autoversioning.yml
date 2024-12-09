@@ -6,24 +6,20 @@ name: Update Info.plist Version
   workflow_dispatch: null
 jobs:
   increment_version:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: 3.x
-      - name: Install dependencies
+      - name: Increment version and build
         run: |
-          pip install --upgrade pip
-      - name: Update Info.plist
-        run: |
-          python scripts/update_plist.py
+          chmod +x scripts/update_plist.sh
+          ./scripts/update_plist.sh
         env:
           INFO_PLIST_PATH: path/to/Info.plist
       - name: Commit and push changes
         run: |
-          git add ../../../Example/FalconPodGuide/Info.plist
+          git config --global user.name "GitHub Action"
+          git config --global user.email "action@github.com"
+          git add path/to/Info.plist
           git commit -m "Auto-incremented version and build"
           git push
