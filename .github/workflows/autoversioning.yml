@@ -20,4 +20,5 @@ jobs:
           chmod +x scripts/update_plist_create_pr.sh
           ./scripts/update_plist_create_pr.sh
         env:
+          INFO_PLIST_PATH: ./Example/FalconPodGuide/Info.plist
           GH_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
