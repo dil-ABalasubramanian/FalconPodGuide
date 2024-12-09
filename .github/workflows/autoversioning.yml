@@ -26,7 +26,7 @@ jobs:
       # Step 3: Find and update Info.plist
       - name: Increment version and build
         run: |
-          INFO_PLIST=$(find . -name "Info.plist" | head -n 1)
+          INFO_PLIST=$(find ./Example/FalconPodGuide -name "Info.plist" | head -n 1)
           if [ -z "$INFO_PLIST" ]; then
             echo "Error: Info.plist not found."
             exit 1
