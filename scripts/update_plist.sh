@@ -4,8 +4,7 @@
 set -e
 
 # Path to Info.plist
-INFO_PLIST=$(find ../Example/FalconPodGuide -name "Info.plist" | head -n 1)
-echo "path = $INFO_PLIST"
+INFO_PLIST=${INFO_PLIST_PATH:-"./Example/FalconPodGuide/Info.plist"}
 
 # Get current version and build
 CURRENT_VERSION=$(/usr/libexec/PlistBuddy -c "Print CFBundleShortVersionString" "$INFO_PLIST" 2>/dev/null || echo "0.0.0")
