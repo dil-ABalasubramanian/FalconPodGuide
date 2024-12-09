@@ -38,4 +38,4 @@ git commit -m "Auto-incremented version to $NEW_VERSION and build to $NEW_BUILD"
 git push --set-upstream origin "$BRANCH_NAME"
 
 # Create a pull request using GitHub CLI
-gh pr create --base "$BASE_BRANCH" --head "$BRANCH_NAME" --title "Version Bump to $NEW_VERSION" --body "Auto-incremented version to $NEW_VERSION and build number to $NEW_BUILD."
+gh pr create --base "$BASE_BRANCH" --head "$BRANCH_NAME" --title "Version Bump to $NEW_VERSION" --body "Auto-incremented version to $NEW_VERSION and build number to $NEW_BUILD." --token "$GH_TOKEN"

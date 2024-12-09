@@ -1,25 +1,23 @@
-name: Update Info.plist Version
+name: Update Info.plist Version and Create PR
 'on':
+  workflow_dispatch: null
   push:
     branches:
       - main
-  workflow_dispatch: null
 jobs:
   increment_version:
     runs-on: macos-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      - name: Increment version and build
+      - name: Authenticate GitHub CLI
+        env:
+          GH_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
+        run: |
+          gh auth login --with-token <<< "${GH_TOKEN}"
+      - name: 'Increment version, commit, and create PR'
         run: |
           chmod +x scripts/update_plist_create_pr.sh
           ./scripts/update_plist_create_pr.sh
         env:
-          INFO_PLIST_PATH: ./Example/FalconPodGuide/Info.plist
-      - name: Commit and push changes
-        run: |
-          git config --global user.name "GitHub Action"
-          git config --global user.email "action@github.com"
-          git add ./Example/FalconPodGuide/Info.plist
-          git commit -m "Auto-incremented version and build"
-          git push
+          GH_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
