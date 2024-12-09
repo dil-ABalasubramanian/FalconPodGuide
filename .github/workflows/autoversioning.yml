@@ -35,18 +35,3 @@ jobs:
           CURRENT_VERSION=$(/usr/libexec/PlistBuddy -c "Print CFBundleShortVersionString" "$INFO_PLIST" 2>/dev/null || echo "0.0.0")
           CURRENT_BUILD=$(/usr/libexec/PlistBuddy -c "Print CFBundleVersion" "$INFO_PLIST" 2>/dev/null || echo "0")
           echo "Current Version: $CURRENT_VERSION, Current Build: $CURRENT_BUILD"
-      ```
----
-
-### **8. Verify Relative Paths**
-If `Info.plist` is generated or modified during the build, ensure the script runs **after** it has been created.
-
----
-
-### Common Issues and Fixes Recap:
-- **File Not Found:** Use `find` and debug the file structure.
-- **Wrong Working Directory:** Use `pwd` and set `find` to search the correct subdirectory.
-- **File Not Tracked:** Ensure `Info.plist` is in the repository or generated as part of the build.
-- **Custom Build Settings:** Use `xcodebuild` to locate `Info.plist`.
-
-Let me know if you encounter further issues!
