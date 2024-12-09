@@ -1,25 +1,52 @@
 name: Update Info.plist Version
-'on':
+
+on:
   push:
     branches:
       - main
-  workflow_dispatch: null
+  workflow_dispatch:
+
 jobs:
   increment_version:
     runs-on: macos-latest
+
     steps:
+      # Step 1: Checkout code
       - name: Checkout code
         uses: actions/checkout@v3
+
+      # Step 2: Debug directory structure
+      - name: Debug Directory Structure
+        run: |
+          echo "Current working directory:"
+          pwd
+          echo "Listing files and directories:"
+          ls -R
+
+      # Step 3: Find and update Info.plist
       - name: Increment version and build
         run: |
-          chmod +x scripts/update_plist.sh
-          ./scripts/update_plist.sh
-        env:
-          INFO_PLIST_PATH: path/to/Info.plist
-      - name: Commit and push changes
-        run: |
-          git config --global user.name "GitHub Action"
-          git config --global user.email "action@github.com"
-          git add path/to/Info.plist
-          git commit -m "Auto-incremented version and build"
-          git push
+          INFO_PLIST=$(find . -name "Info.plist" | head -n 1)
+          if [ -z "$INFO_PLIST" ]; then
+            echo "Error: Info.plist not found."
+            exit 1
+          fi
+          echo "Found Info.plist at $INFO_PLIST"
+          CURRENT_VERSION=$(/usr/libexec/PlistBuddy -c "Print CFBundleShortVersionString" "$INFO_PLIST" 2>/dev/null || echo "0.0.0")
+          CURRENT_BUILD=$(/usr/libexec/PlistBuddy -c "Print CFBundleVersion" "$INFO_PLIST" 2>/dev/null || echo "0")
+          echo "Current Version: $CURRENT_VERSION, Current Build: $CURRENT_BUILD"
+      ```
+---
+
+### **8. Verify Relative Paths**
+If `Info.plist` is generated or modified during the build, ensure the script runs **after** it has been created.
+
+---
+
+### Common Issues and Fixes Recap:
+- **File Not Found:** Use `find` and debug the file structure.
+- **Wrong Working Directory:** Use `pwd` and set `find` to search the correct subdirectory.
+- **File Not Tracked:** Ensure `Info.plist` is in the repository or generated as part of the build.
+- **Custom Build Settings:** Use `xcodebuild` to locate `Info.plist`.
+
+Let me know if you encounter further issues!
