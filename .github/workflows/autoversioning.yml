@@ -20,6 +20,6 @@ jobs:
         run: |
           git config --global user.name "GitHub Action"
           git config --global user.email "action@github.com"
-          git add path/to/Info.plist
+          git add ./Example/FalconPodGuide/Info.plist
           git commit -m "Auto-incremented version and build"
           git push
