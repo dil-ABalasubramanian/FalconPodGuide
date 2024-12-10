@@ -1,24 +1,24 @@
-name: Update Info.plist Version and Create PR
-'on':
-  workflow_dispatch: null
-  push:
-    branches:
-      - main
-jobs:
-  increment_version:
-    runs-on: macos-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-      - name: Authenticate GitHub CLI
-        env:
-          GH_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
-        run: |
-          echo "Using GH_TOKEN for GitHub CLI"
-      - name: 'Increment version, commit, and create PR'
-        run: |
-          chmod +x scripts/update_plist_create_pr.sh
-          ./scripts/update_plist_create_pr.sh
-        env:
-          INFO_PLIST_PATH: ./Example/FalconPodGuide/Info.plist
-          GH_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
+#name: Update Info.plist Version and Create PR
+#'on':
+#  workflow_dispatch: null
+#  push:
+#    branches:
+#      - main
+#jobs:
+#  increment_version:
+#    runs-on: macos-latest
+#    steps:
+#      - name: Checkout code
+#        uses: actions/checkout@v3
+#      - name: Authenticate GitHub CLI
+#        env:
+#          GH_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
+#        run: |
+#          echo "Using GH_TOKEN for GitHub CLI"
+#      - name: 'Increment version, commit, and create PR'
+#        run: |
+#          chmod +x scripts/update_plist_create_pr.sh
+#          ./scripts/update_plist_create_pr.sh
+#        env:
+#          INFO_PLIST_PATH: ./Example/FalconPodGuide/Info.plist
+#          GH_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
