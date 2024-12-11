@@ -1,34 +1,25 @@
-name: Auto Increment Version and Create PR on Tag Creation
+name: Update Info.plist Version and Create PR
 'on':
   push:
     tags:
-      - "*"
+      - '*'
+    branches:
+      - main
 jobs:
-  auto_increment_version:
+  increment_version:
     runs-on: macos-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      - name: Increment version
+      - name: Authenticate GitHub CLI
+        env:
+          GH_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
         run: |
-          chmod +x scripts/version_update_plist.sh
-          ./scripts/version_update_plist.sh
+          echo "Using GH_TOKEN for GitHub CLI"
+      - name: 'Increment version, commit, and create PR'
+        run: |
+          chmod +x scripts/update_plist_create_pr.sh
+          ./scripts/update_plist_create_pr.sh
         env:
           INFO_PLIST_PATH: ./Example/FalconPodGuide/Info.plist
-      - name: Commit and push changes
-        run: |
-          git config user.name "GitHub Action"
-          git config user.email "action@github.com"
-          BRANCH_NAME="version-bump/$(date +'%Y%m%d%H%M%S')"
-          git checkout -b "$BRANCH_NAME"
-          git add .
-          git commit -m "Auto-incremented version after tag creation"
-          git push origin "$BRANCH_NAME"
-      # Step 4: Create a Pull Request
-      - name: Create pull request
-        uses: peter-evans/create-pull-request@v5
-        with:
-          branch: ${{ env.BRANCH_NAME }}
-          base: main
-          title: "Version Bump Post Tag Creation"
-          body: "This PR increments the version and updates Info.plist after tag creation."
+          GH_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
