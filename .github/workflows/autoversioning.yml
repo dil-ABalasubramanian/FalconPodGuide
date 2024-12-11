@@ -2,7 +2,7 @@ name: Auto Increment Version and Create PR on Tag Creation
 'on':
   push:
     tags:
-      - v*
+      - *
 jobs:
   auto_increment_version:
     runs-on: macos-latest
