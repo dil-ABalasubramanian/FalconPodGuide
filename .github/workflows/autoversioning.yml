@@ -29,6 +29,6 @@ jobs:
         uses: peter-evans/create-pull-request@v5
         with:
           branch: ${{ env.BRANCH_NAME }}
-          base: origin/main
+          base: main
           title: "Version Bump Post Tag Creation"
           body: "This PR increments the version and updates Info.plist after tag creation."
