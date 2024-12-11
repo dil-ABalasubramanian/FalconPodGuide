@@ -3,8 +3,6 @@ name: Update Info.plist Version and Create PR
   push:
     tags:
       - '*'
-    branches:
-      - main
 jobs:
   increment_version:
     runs-on: macos-latest
