@@ -24,12 +24,11 @@ jobs:
           git add .
           git commit -m "Auto-incremented version after tag creation"
           git push origin "$BRANCH_NAME"
+      # Step 4: Create a Pull Request
       - name: Create pull request
         uses: peter-evans/create-pull-request@v5
         with:
-          branch: '${{ github.ref_name }}'
-          base: main
-          title: Version Bump Post Tag Creation
-          body: >-
-            This PR increments the version and updates Info.plist after tag
-            creation.
+          branch: ${{ env.BRANCH_NAME }}
+          base: origin/main
+          title: "Version Bump Post Tag Creation"
+          body: "This PR increments the version and updates Info.plist after tag creation."
