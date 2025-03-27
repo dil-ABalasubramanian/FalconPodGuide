@@ -1,0 +1,123 @@
+name: Create Release on Merge to Master
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  calculate-and-create-release:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Calculate Projected Version
+        id: calculate-version
+        shell: bash
+        run: |
+          set -x  # Enable debug mode to show each command being executed
+          
+          # Fetch tags and ensure at least a default tag exists
+          git fetch --tags
+          latest_tag=$(git tag --sort=-v:refname | head -n 1 || echo "0.0.0")
+          
+          if [[ -z "$latest_tag" ]]; then
+            echo "DEBUG: Empty latest_tag, defaulting to 0.0.0"
+            latest_tag="0.0.0"
+          fi
+          
+          echo "DEBUG: Latest Tag (raw): $latest_tag"
+          # Normalize the tag format by removing "v" prefix if present
+          normalized_tag=${latest_tag#v}
+          echo "DEBUG: Normalized Latest Tag: $normalized_tag"
+          
+          # Validate the format of the normalized tag
+          if ! [[ "$normalized_tag" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "DEBUG: Invalid tag format, defaulting to 0.0.0"
+            normalized_tag="0.0.0"
+          fi
+          
+          # Initialize new_version at the start
+          new_version=""
+          bump_type="none"
+          
+          # Filter commits
+          commits=$(git log $latest_tag..HEAD --no-merges --format=%s || echo "")
+          echo "DEBUG: Commits found:"
+          echo "$commits"
+          
+          # Debug: Commit count (handle empty commits properly)
+          commit_count=0
+          if [[ ! -z "$commits" ]]; then
+            commit_count=$(echo "$commits" | grep -v '^$' | wc -l)
+          fi
+          echo "DEBUG: Number of commits: $commit_count"
+          
+          if [[ $commit_count -eq 0 ]]; then
+            echo "DEBUG: No commits found, keeping current version"
+            new_version="$normalized_tag"
+          else
+            # Count different types of commits
+            major_count=$(echo "$commits" | grep -c '^major:' || echo "0")
+            minor_count=$(echo "$commits" | grep -c '^feat:' || echo "0")
+            patch_count=$(echo "$commits" | grep -c '^fix:' || echo "0")
+            
+            echo "DEBUG: Major commits: $major_count"
+            echo "DEBUG: Minor commits: $minor_count"
+            echo "DEBUG: Patch commits: $patch_count"
+            
+            # Determine bump type
+            if [[ $major_count -gt 0 ]]; then
+              bump_type="major"
+            elif [[ $minor_count -gt 0 ]]; then
+              bump_type="minor"
+            elif [[ $patch_count -gt 0 ]]; then
+              bump_type="patch"
+            fi
+            
+            echo "DEBUG: Bump type determined: $bump_type"
+            
+            # Parse current version
+            IFS="." read -r major minor patch <<< "$normalized_tag"
+            echo "DEBUG: Parsed version - major: $major, minor: $minor, patch: $patch"
+            
+            case $bump_type in
+              major)
+                new_version="$((major + 1)).0.0" ;;
+              minor)
+                new_version="$major.$((minor + 1)).0" ;;
+              patch)
+                new_version="$major.$minor.$((patch + 1))" ;;
+              none)
+                new_version="$normalized_tag" ;;
+            esac
+          fi
+          
+          echo "DEBUG: Final new_version: '$new_version'"
+          echo "new_version=$new_version" >> $GITHUB_ENV
+
+      - name: Check If New Version Is Needed
+        id: check-version
+        run: |
+          if [[ "$new_version" == "$latest_tag" ]]; then
+            echo "DEBUG: No new version needed. Latest tag matches projected version."
+            echo "skip_release=true" >> $GITHUB_ENV
+          else
+            echo "DEBUG: New version needed. Proceeding with release."
+            echo "skip_release=false" >> $GITHUB_ENV
+
+      - name: Create Release
+        if: env.skip_release == 'false'
+        uses: actions/create-release@v1
+        with:
+          tag_name: ${{ env.new_version }}
+          release_name: Release ${{ env.new_version }}
+          body: |
+            ## What's Changed
+            ${{ steps.calculate-version.outputs.commits }}
+          draft: false
+          prerelease: false
