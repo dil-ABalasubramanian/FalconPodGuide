@@ -112,6 +112,7 @@ jobs:
           else
             echo "DEBUG: New version needed. Proceeding with release."
             echo "skip_release=false" >> $GITHUB_ENV
+          fi
 
       - name: Create Release
         if: env.skip_release == 'false'
