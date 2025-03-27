@@ -3,7 +3,10 @@ name: Create Release on Merge to Master
 on:
   push:
     branches:
-      - master
+      - main
+
+permissions:
+  contents: write
 
 jobs:
   calculate-and-create-release:
