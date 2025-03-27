@@ -19,12 +19,12 @@ jobs:
         run: ls -R
 
       - name: Install Dependencies
-        working-directory: BoardsiOS.CoreUI
+        working-directory: FalconPodGuide
         run: swift package resolve
 
       - name: Run Tests and Capture Results
         id: run-tests
-        working-directory: BoardsiOS.CoreUI
+        working-directory: FalconPodGuide
         run: |
           swift test --enable-code-coverage > test-results.txt
           tail -n 20 test-results.txt > summarized-tests.txt
