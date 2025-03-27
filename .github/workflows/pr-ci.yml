@@ -19,12 +19,12 @@ jobs:
         run: ls -R
 
       - name: Install Dependencies
-        working-directory: FalconPodGuide
+        working-directory: FalconPodGuide/PKBoardsRNDSwiftPackage
         run: swift package resolve
 
       - name: Run Tests and Capture Results
         id: run-tests
-        working-directory: FalconPodGuide
+        working-directory: FalconPodGuide/PKBoardsRNDSwiftPackage
         run: |
           swift test --enable-code-coverage > test-results.txt
           tail -n 20 test-results.txt > summarized-tests.txt
@@ -173,7 +173,7 @@ jobs:
             const prNumber = context.payload.pull_request.number;
 
             // Read test results
-            const testResults = fs.readFileSync('FalconPodGuide/summarized-tests.txt', 'utf8');
+            const testResults = fs.readFileSync('FalconPodGuide/PKBoardsRNDSwiftPackage/summarized-tests.txt', 'utf8');
 
             // Read commit validation output if exists
             let commitValidation = '';
