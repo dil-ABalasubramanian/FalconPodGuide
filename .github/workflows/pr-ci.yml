@@ -173,7 +173,7 @@ jobs:
             const prNumber = context.payload.pull_request.number;
 
             // Read test results
-            const testResults = fs.readFileSync('BoardsiOS.CoreUI/summarized-tests.txt', 'utf8');
+            const testResults = fs.readFileSync('FalconPodGuide/summarized-tests.txt', 'utf8');
 
             // Read commit validation output if exists
             let commitValidation = '';
