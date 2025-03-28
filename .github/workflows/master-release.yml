@@ -4,10 +4,6 @@ on:
   push:
     branches:
       - main
-
-permissions:
-  contents: write
-
 jobs:
   calculate-and-create-release:
     runs-on: macos-latest
