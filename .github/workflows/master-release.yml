@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+permissions:
+  contents: write  # Required to create releases/tags
 jobs:
   calculate-and-create-release:
     runs-on: macos-latest
@@ -101,8 +103,10 @@ jobs:
 
       - name: Check If New Version Is Needed
         id: check-version
+        shell: bash
         run: |
           latest_tag=$(git tag --sort=-v:refname | head -n 1 || echo "0.0.0")
+
           if git rev-parse "refs/tags/$new_version" >/dev/null 2>&1; then
             echo "DEBUG: Tag $new_version already exists. Skipping release."
             echo "skip_release=true" >> $GITHUB_ENV
@@ -112,7 +116,7 @@ jobs:
           else
             echo "DEBUG: New version needed. Proceeding with release."
             echo "skip_release=false" >> $GITHUB_ENV
-         fi
+
       - name: Create Release
         if: env.skip_release == 'false'
         uses: actions/create-release@v1
