@@ -102,14 +102,17 @@ jobs:
       - name: Check If New Version Is Needed
         id: check-version
         run: |
-          if [[ "$new_version" == "$latest_tag" ]]; then
+          latest_tag=$(git tag --sort=-v:refname | head -n 1 || echo "0.0.0")
+          if git rev-parse "refs/tags/$new_version" >/dev/null 2>&1; then
+            echo "DEBUG: Tag $new_version already exists. Skipping release."
+            echo "skip_release=true" >> $GITHUB_ENV
+          elif [[ "$new_version" == "$latest_tag" ]]; then
             echo "DEBUG: No new version needed. Latest tag matches projected version."
             echo "skip_release=true" >> $GITHUB_ENV
           else
             echo "DEBUG: New version needed. Proceeding with release."
             echo "skip_release=false" >> $GITHUB_ENV
-          fi
-
+         fi
       - name: Create Release
         if: env.skip_release == 'false'
         uses: actions/create-release@v1
