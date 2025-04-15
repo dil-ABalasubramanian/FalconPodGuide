@@ -4,11 +4,13 @@ on:
   push:
     branches:
       - main
+
 permissions:
   contents: write  # Required to create releases/tags
+
 jobs:
   calculate-and-create-release:
-    runs-on: macos-latest
+    runs-on: macos-15
 
     steps:
       - name: Checkout Code
@@ -51,6 +53,11 @@ jobs:
           echo "DEBUG: Commits found:"
           echo "$commits"
           
+          # Export commit log to output safely
+          echo "commits<<EOF" >> $GITHUB_OUTPUT
+          echo "$commits" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
           # Debug: Commit count (handle empty commits properly)
           commit_count=0
           if [[ ! -z "$commits" ]]; then
