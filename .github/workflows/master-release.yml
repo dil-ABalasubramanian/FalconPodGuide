@@ -132,7 +132,7 @@ jobs:
           swift package \
             --allow-writing-to-directory ./docs \
             generate-documentation \
-            --target PKBoardsRNDSwiftPackage/ \
+            --target PKBoardsRNDSwiftPackage \
             --disable-indexing \
             --transform-for-static-hosting \
             --hosting-base-path FalconPodGuide \
