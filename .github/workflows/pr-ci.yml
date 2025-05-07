@@ -23,7 +23,6 @@ jobs:
 
       - name: Run Tests and Capture Results
         id: run-tests
-        working-directory: PKBoardsRNDSwiftPackage
         run: |
           swift test --enable-code-coverage > test-results.txt
           tail -n 20 test-results.txt > summarized-tests.txt
