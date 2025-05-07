@@ -19,7 +19,6 @@ jobs:
         run: ls -R
 
       - name: Install Dependencies
-        working-directory: PKBoardsRNDSwiftPackage
         run: swift package resolve
 
       - name: Run Tests and Capture Results
@@ -173,7 +172,7 @@ jobs:
             const prNumber = context.payload.pull_request.number;
 
             // Read test results
-            const testResults = fs.readFileSync('PKBoardsRNDSwiftPackage/summarized-tests.txt', 'utf8');
+            const testResults = fs.readFileSync('summarized-tests.txt', 'utf8');
 
             // Read commit validation output if exists
             let commitValidation = '';
