@@ -227,7 +227,9 @@ jobs:
           if ! git diff --quiet -- docs; then
             git add docs
             git commit -m "docs: update documentation for version $new_version"
-            git push origin "HEAD:refs/heads/${GITHUB_REF##*/}"
+            branch="${GITHUB_REF##*/}"
+            git pull --rebase origin "$branch"
+           git push origin "HEAD:refs/heads/$branch"
           else
             echo "No changes in documentation. Skipping commit."
           fi
