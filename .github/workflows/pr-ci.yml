@@ -227,7 +227,7 @@ jobs:
           if ! git diff --quiet -- docs; then
             git add docs
             git commit -m "docs: update documentation for version $new_version"
-            git push origin HEAD
+            git push origin main
           else
             echo "No changes in documentation. Skipping commit."
           fi
