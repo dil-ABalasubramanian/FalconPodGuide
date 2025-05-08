@@ -18,7 +18,7 @@ let package = Package(
             targets: ["PKBoardsRNDSwiftPackage"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/apple/swift-docc-plugin", branch: "main")
+        .package(url: "https://github.com/apple/swift-docc-plugin", from: "1.4.3")
 
     ],
     targets: [

@@ -10,11 +10,11 @@ permissions:
 
 jobs:
   calculate-and-create-release:
-    runs-on: macos-15
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -52,12 +52,12 @@ jobs:
           commits=$(git log $latest_tag..HEAD --no-merges --format=%s || echo "")
           echo "DEBUG: Commits found:"
           echo "$commits"
-          
+
           # Export commit log to output safely
           echo "commits<<EOF" >> $GITHUB_OUTPUT
           echo "$commits" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
-
+          
           # Debug: Commit count (handle empty commits properly)
           commit_count=0
           if [[ ! -z "$commits" ]]; then
@@ -106,24 +106,37 @@ jobs:
           fi
           
           echo "DEBUG: Final new_version: '$new_version'"
-          echo "new_version=$new_version" >> $GITHUB_ENV
+          echo "new_version=$new_version" >> $GITHUB_OUTPUT
 
       - name: Check If New Version Is Needed
         id: check-version
         shell: bash
         run: |
           latest_tag=$(git tag --sort=-v:refname | head -n 1 || echo "0.0.0")
+          echo "DEBUG: Latest tag: '$latest_tag'"
+          new_version="${{ steps.calculate-version.outputs.new_version }}"
+          echo "DEBUG: New version: '$new_version'"
 
           if git rev-parse "refs/tags/$new_version" >/dev/null 2>&1; then
             echo "DEBUG: Tag $new_version already exists. Skipping release."
-            echo "skip_release=true" >> $GITHUB_ENV
+            echo "skip_release=true" >> $GITHUB_OUTPUT
           elif [[ "$new_version" == "$latest_tag" ]]; then
             echo "DEBUG: No new version needed. Latest tag matches projected version."
-            echo "skip_release=true" >> $GITHUB_ENV
+            echo "skip_release=true" >> $GITHUB_OUTPUT
           else
             echo "DEBUG: New version needed. Proceeding with release."
-            echo "skip_release=false" >> $GITHUB_ENV
+            echo "skip_release=false" >> $GITHUB_OUTPUT
           fi
+
+      - name: Create Release
+        if: steps.check-version.outputs.skip_release == 'false'
+        run: |
+          gh release create ${{ steps.calculate-version.outputs.new_version }} \
+            --title "Release ${{ steps.calculate-version.outputs.new_version }}" \
+            --notes "## What's Changed
+          ${{ steps.calculate-version.outputs.commits }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Generate DocC Documentation
         if: env.skip_release == 'false'
@@ -135,7 +148,6 @@ jobs:
             --target PKBoardsRNDSwiftPackage \
             --disable-indexing \
             --transform-for-static-hosting \
-            --hosting-base-path FalconPodGuide \
             --output-path ./docs
 
       - name: Commit and Push Docs
@@ -143,20 +155,12 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add docs
-          git commit -m "docs: update documentation for version $new_version [skip ci]" || echo "No changes to commit"
-          git push origin main
-
-      - name: Create Release
-        if: env.skip_release == 'false'
-        uses: actions/create-release@v1.1.4
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ env.new_version }}
-          release_name: Release ${{ env.new_version }}
-          body: |
-            ## What's Changed
-            ${{ steps.calculate-version.outputs.commits }}
-          draft: false
-          prerelease: false
+          
+          # Check for changes in docs/
+          if ! git diff --quiet -- docs; then
+            git add docs
+            git commit -m "docs: update documentation for version $new_version"
+            git push origin HEAD
+          else
+            echo "No changes in documentation. Skipping commit."
+          fi
