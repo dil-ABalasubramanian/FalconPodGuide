@@ -129,7 +129,6 @@ jobs:
           fi
 
       - name: Generate DocC Documentation
-        if: steps.check-version.outputs.skip_release == 'false'
         run: |
           mkdir -p docs
           swift package \
@@ -141,7 +140,6 @@ jobs:
             --output-path ./docs
 
       - name: Commit and Push Docs
-        if: steps.check-version.outputs.skip_release == 'false'
         env:
           VERSION: ${{ steps.calculate-version.outputs.new_version }}
         run: |
@@ -156,7 +154,6 @@ jobs:
           else
             echo "No changes in documentation. Skipping commit."
           fi
-
 
       - name: Create Release
         if: steps.check-version.outputs.skip_release == 'false'
