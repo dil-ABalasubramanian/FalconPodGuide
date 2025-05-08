@@ -157,7 +157,6 @@ jobs:
             echo "No changes in documentation. Skipping commit."
           fi
 
-
       - name: Create Release
         if: steps.check-version.outputs.skip_release == 'false'
         run: |
