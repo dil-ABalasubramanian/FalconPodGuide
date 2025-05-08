@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   calculate-and-create-release:
-    runs-on: ubuntu-latest
+    runs-on: macos-15
 
     steps:
       - name: Checkout Code
@@ -152,7 +152,7 @@ jobs:
           if ! git diff --quiet -- docs; then
             git add docs
             git commit -m "docs: update documentation for version $VERSION"
-            git push origin HEAD
+            git push origin main
           else
             echo "No changes in documentation. Skipping commit."
           fi
