@@ -139,7 +139,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Generate DocC Documentation
-        if: env.skip_release == 'false'
+        if: steps.check-version.outputs.skip_release == 'false'
         run: |
           mkdir -p docs
           swift package \
@@ -151,7 +151,9 @@ jobs:
             --output-path ./docs
 
       - name: Commit and Push Docs
-        if: env.skip_release == 'false'
+        if: steps.check-version.outputs.skip_release == 'false'
+        env:
+          VERSION: ${{ steps.calculate-version.outputs.new_version }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -159,7 +161,7 @@ jobs:
           # Check for changes in docs/
           if ! git diff --quiet -- docs; then
             git add docs
-            git commit -m "docs: update documentation for version $new_version"
+            git commit -m "docs: update documentation for version $VERSION"
             git push origin HEAD
           else
             echo "No changes in documentation. Skipping commit."
