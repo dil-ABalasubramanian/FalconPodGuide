@@ -128,16 +128,6 @@ jobs:
             echo "skip_release=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: Create Release
-        if: steps.check-version.outputs.skip_release == 'false'
-        run: |
-          gh release create ${{ steps.calculate-version.outputs.new_version }} \
-            --title "Release ${{ steps.calculate-version.outputs.new_version }}" \
-            --notes "## What's Changed
-          ${{ steps.calculate-version.outputs.commits }}"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Generate DocC Documentation
         if: steps.check-version.outputs.skip_release == 'false'
         run: |
@@ -166,3 +156,14 @@ jobs:
           else
             echo "No changes in documentation. Skipping commit."
           fi
+
+
+      - name: Create Release
+        if: steps.check-version.outputs.skip_release == 'false'
+        run: |
+          gh release create ${{ steps.calculate-version.outputs.new_version }} \
+            --title "Release ${{ steps.calculate-version.outputs.new_version }}" \
+            --notes "## What's Changed
+          ${{ steps.calculate-version.outputs.commits }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
