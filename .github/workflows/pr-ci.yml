@@ -206,3 +206,28 @@ jobs:
               issue_number: prNumber,
               body: comment.trim(),
             });
+
+      - name: Generate DocC Documentation
+        run: |
+          mkdir -p docs
+          swift package \
+            --allow-writing-to-directory ./docs \
+            generate-documentation \
+            --target PKBoardsRNDSwiftPackage \
+            --disable-indexing \
+            --transform-for-static-hosting \
+            --output-path ./docs
+
+      - name: Commit and Push Docs
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # Check for changes in docs/
+          if ! git diff --quiet -- docs; then
+            git add docs
+            git commit -m "docs: update documentation for version $new_version"
+            git push origin "HEAD:refs/heads/${GITHUB_REF##*/}"
+          else
+            echo "No changes in documentation. Skipping commit."
+          fi
